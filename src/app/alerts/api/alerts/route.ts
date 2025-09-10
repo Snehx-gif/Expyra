@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const where: any = { status };
-    
+
     if (type) {
       where.type = type;
     }
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Validation error', details: error.issues },
         { status: 400 }
       );
     }

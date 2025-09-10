@@ -81,7 +81,7 @@ Provide realistic predictions based on typical food sales patterns, considering 
 
     // Extract the response
     const responseContent = completion.choices[0]?.message?.content;
-    
+
     if (!responseContent) {
       throw new Error('No response from AI');
     }
@@ -111,10 +111,10 @@ Provide realistic predictions based on typical food sales patterns, considering 
 
   } catch (error) {
     console.error('Error in AI prediction:', error);
-    
+
     // Fallback to mock predictions
     const mockData = generateMockPredictions('30d');
-    
+
     return NextResponse.json({
       predictions: mockData.predictions,
       summary: mockData.summary,
@@ -128,24 +128,34 @@ Provide realistic predictions based on typical food sales patterns, considering 
 // Helper function to generate mock predictions
 function generateMockPredictions(timeRange: string) {
   const days = parseInt(timeRange) || 30;
-  const predictions = [];
+  const predictions: {
+    date: string;
+    predictedSales: number;
+    confidence: number;
+    factors: {
+      seasonality: number;
+      trend: number;
+      external: number;
+    };
+    insights?: string;
+  }[] = [];
   let totalSales = 0;
 
   for (let i = 0; i < Math.min(days, 30); i++) {
     const date = new Date();
     date.setDate(date.getDate() + i);
-    
+
     // Simulate realistic sales patterns
     const baseSales = 100 + Math.random() * 100;
     const weekendFactor = [0, 6].includes(date.getDay()) ? 1.3 : 1.0;
     const seasonalFactor = 1 + 0.2 * Math.sin((date.getMonth() / 12) * 2 * Math.PI);
     const trendFactor = 1 + (i / days) * 0.1;
-    
+
     const predictedSales = Math.round(baseSales * weekendFactor * seasonalFactor * trendFactor);
     const confidence = 0.8 + Math.random() * 0.15;
-    
+
     totalSales += predictedSales;
-    
+
     predictions.push({
       date: date.toISOString().split('T')[0],
       predictedSales,
@@ -159,12 +169,16 @@ function generateMockPredictions(timeRange: string) {
     });
   }
 
+  const avgConfidence = predictions.length
+    ? predictions.reduce((s, p) => s + p.confidence, 0) / predictions.length
+    : 0;
+
   return {
     predictions,
     summary: {
       averagePredictedSales: Math.round(totalSales / predictions.length),
       totalPredictedSales: totalSales,
-      confidenceLevel: confidence > 0.85 ? 'High' : confidence > 0.75 ? 'Medium' : 'Low',
+      confidenceLevel: avgConfidence > 0.85 ? 'High' : avgConfidence > 0.75 ? 'Medium' : 'Low',
       keyInsights: [
         'Sales tend to be higher on weekends',
         'Seasonal patterns show moderate influence',

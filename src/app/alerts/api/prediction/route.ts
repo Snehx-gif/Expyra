@@ -11,29 +11,36 @@ const predictionSchema = z.object({
     seasonality: z.boolean().default(true),
     trends: z.boolean().default(true),
     externalFactors: z.boolean().default(false),
-  }).default({}),
+  }).default({ seasonality: true, trends: true, externalFactors: false }),
 });
 
 // Mock AI prediction data generator
 const generateMockPrediction = (params: any) => {
+  type MockPrediction = {
+    date: string;
+    predictedSales: number;
+    confidence: number;
+    factors: Record<string, number>;
+    insights?: string;
+  };
   const baseSales = Math.floor(Math.random() * 200) + 100;
   const days = parseInt(params.timeRange) || 30;
-  const predictions = [];
-  
+  const predictions: MockPrediction[] = [];
+
   for (let i = 0; i < Math.min(days, 30); i++) {
     const date = new Date();
     date.setDate(date.getDate() + i);
-    
+
     // Add some realistic variation
-    const seasonalFactor = params.factors.seasonality ? 
+    const seasonalFactor = params.factors.seasonality ?
       1 + 0.3 * Math.sin((i / 30) * 2 * Math.PI) : 1;
-    const trendFactor = params.factors.trends ? 
+    const trendFactor = params.factors.trends ?
       1 + (i / days) * 0.2 : 1;
     const randomFactor = 0.8 + Math.random() * 0.4;
-    
+
     const predictedSales = Math.round(baseSales * seasonalFactor * trendFactor * randomFactor);
     const confidence = Math.max(0.7, Math.min(0.95, 0.85 + (Math.random() - 0.5) * 0.2));
-    
+
     predictions.push({
       date: date.toISOString().split('T')[0],
       predictedSales,
@@ -45,7 +52,7 @@ const generateMockPrediction = (params: any) => {
       },
     });
   }
-  
+
   return predictions;
 };
 
@@ -59,11 +66,11 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const where: any = {};
-    
+
     if (productId) {
       where.productId = productId;
     }
-    
+
     if (category) {
       where.product = {
         category: { contains: category, mode: 'insensitive' }
@@ -174,7 +181,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Validation error', details: error.issues },
         { status: 400 }
       );
     }

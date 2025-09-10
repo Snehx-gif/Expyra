@@ -7,13 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { 
-  Package, 
-  AlertTriangle, 
-  TrendingUp, 
-  Camera, 
-  Bell, 
-  Settings, 
+import {
+  Package,
+  AlertTriangle,
+  TrendingUp,
+  Camera,
+  Bell,
+  Settings,
   BarChart3,
   ShoppingCart,
   Calendar,
@@ -143,18 +143,6 @@ export default function Dashboard() {
               </a>
             </Button>
           ))}
-          <Button variant="ghost" className="w-full justify-start">
-            <ShoppingCart className="mr-2 h-4 w-4" />
-            Inventory
-          </Button>
-          <Button variant="ghost" className="w-full justify-start">
-            <Calendar className="mr-2 h-4 w-4" />
-            Schedule
-          </Button>
-          <Button variant="ghost" className="w-full justify-start">
-            <Users className="mr-2 h-4 w-4" />
-            Suppliers
-          </Button>
         </nav>
       </div>
     </>
@@ -177,14 +165,14 @@ export default function Dashboard() {
                 <SidebarContent />
               </SheetContent>
             </Sheet>
-            
+
             {/* Logo */}
             <div className="hidden md:flex items-center space-x-2">
               <Package className="h-6 w-6 text-primary" />
               <span className="font-bold text-xl">Expyra</span>
             </div>
           </div>
-          
+
           <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
             {/* Search */}
             <div className="w-full flex-1 md:w-auto md:flex-none">
@@ -195,11 +183,11 @@ export default function Dashboard() {
                 <Search className="mr-2 h-4 w-4" />
                 Search products...
                 <kbd className="pointer-events-none absolute right-[0.3rem] top-[0.3rem] hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-                  ⌘K
+                  ⌘
                 </kbd>
               </Button>
             </div>
-            
+
             {/* Navigation */}
             <nav className="flex items-center space-x-2">
               <Button variant="ghost" size="icon">

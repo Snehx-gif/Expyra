@@ -7,10 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  XCircle, 
+import {
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
   RefreshCw,
   Bell,
   Filter,
@@ -61,7 +61,7 @@ interface SocketAlert {
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<AlertData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState<string>("");
+  const [selectedType, setSelectedType] = useState<string>("ALL");
   const [selectedStatus, setSelectedStatus] = useState<string>("ACTIVE");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -73,7 +73,7 @@ export default function AlertsPage() {
   useEffect(() => {
     fetchAlerts();
     setupSocket();
-    
+
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
@@ -139,9 +139,12 @@ export default function AlertsPage() {
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: "10",
-        type: selectedType,
         status: selectedStatus,
       });
+
+      if (selectedType && selectedType !== "ALL") {
+        params.append("type", selectedType);
+      }
 
       const response = await fetch(`/api/alerts?${params}`);
       if (!response.ok) throw new Error("Failed to fetch alerts");
@@ -284,8 +287,8 @@ export default function AlertsPage() {
       <Alert className={isConnected ? "bg-green-100 text-green-800 border-green-200" : "bg-red-100 text-red-800 border-red-200"}>
         <Bell className="h-4 w-4" />
         <AlertDescription>
-          {isConnected 
-            ? "Connected to real-time alert system" 
+          {isConnected
+            ? "Connected to real-time alert system"
             : "Disconnected from real-time alert system"
           }
         </AlertDescription>
@@ -345,7 +348,7 @@ export default function AlertsPage() {
                   <SelectValue placeholder="All types" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All types</SelectItem>
+                  <SelectItem value="ALL">All types</SelectItem>
                   <SelectItem value="NEAR_EXPIRY">Near Expiry</SelectItem>
                   <SelectItem value="DONATION_READY">Donation Ready</SelectItem>
                   <SelectItem value="EXPIRED">Expired</SelectItem>

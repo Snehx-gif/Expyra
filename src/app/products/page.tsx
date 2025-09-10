@@ -65,7 +65,7 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -104,7 +104,7 @@ export default function ProductsPage() {
         page: currentPage.toString(),
         limit: "10",
         search: searchTerm,
-        category: selectedCategory,
+        category: selectedCategory === "all" ? "" : selectedCategory,
       });
 
       const response = await fetch(`/api/products?${params}`);
@@ -344,7 +344,7 @@ export default function ProductsPage() {
                   <SelectValue placeholder="All categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All categories</SelectItem>
+                  <SelectItem value="all">All categories</SelectItem>
                   {categories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
