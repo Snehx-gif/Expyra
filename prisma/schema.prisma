@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Supplier {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  products Product[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String
+  sku         String?  @unique
+  barcode     String?
+  image       String?
+  supplierId  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  supplier    Supplier? @relation(fields: [supplierId], references: [id])
+  batches     Batch[]
+  inventory   Inventory[]
+  alerts      Alert[]
+  predictions SalesPrediction[]
+}
+
+model Batch {
+  id              String   @id @default(cuid())
+  batchId         String
+  manufacturingDate DateTime
+  expiryDate      DateTime
+  initialQuantity Int
+  currentQuantity Int
+  productId       String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  product         Product  @relation(fields: [productId], references: [id])
+  inventory       Inventory[]
+  alerts          Alert[]
+}
+
+model Inventory {
+  id          String   @id @default(cuid())
+  quantity    Int
+  location    String?
+  batchId     String
+  productId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  batch       Batch    @relation(fields: [batchId], references: [id])
+  product     Product  @relation(fields: [productId], references: [id])
+}
+
+enum AlertType {
+  NEAR_EXPIRY
+  DONATION_READY
+  EXPIRED
+  LOW_STOCK
+}
+
+enum AlertStatus {
+  ACTIVE
+  RESOLVED
+  DISMISSED
+}
+
+model Alert {
+  id          String     @id @default(cuid())
+  type        AlertType
+  title       String
+  message     String
+  status      AlertStatus @default(ACTIVE)
+  productId   String?
+  batchId     String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  resolvedAt  DateTime?
+  
+  product     Product?   @relation(fields: [productId], references: [id])
+  batch       Batch?     @relation(fields: [batchId], references: [id])
+}
+
+model SalesPrediction {
+  id            String   @id @default(cuid())
+  productId     String
+  predictedDate DateTime
+  predictedSales Int
+  confidence    Float
+  factors       String   // JSON string of prediction factors
+  createdAt     DateTime @default(now())
+  
+  product       Product  @relation(fields: [productId], references: [id])
+}
