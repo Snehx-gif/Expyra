@@ -9,11 +9,9 @@ import {
   BarChart3, 
   TrendingUp, 
   PieChart, 
-  Calendar,
   RefreshCw,
   Package,
   AlertTriangle,
-  ShoppingCart,
   DollarSign
 } from "lucide-react";
 import {
@@ -34,6 +32,7 @@ import {
   AreaChart
 } from "recharts";
 import { toast } from "sonner";
+import { ChartContainer, ChartTooltipContent, ChartConfig } from "@/components/ui/chart";
 
 interface AnalyticsData {
   expiryDistribution: Array<{
@@ -81,13 +80,12 @@ export default function AnalyticsPage() {
   const fetchAnalyticsData = async () => {
     setLoading(true);
     try {
-      // Mock data - in real implementation, this would fetch from API
       const mockData: AnalyticsData = {
         expiryDistribution: [
-          { name: "Fresh", value: 45, color: "#10b981" },
-          { name: "Near Expiry", value: 25, color: "#f59e0b" },
-          { name: "Expiring Soon", value: 20, color: "#ef4444" },
-          { name: "Expired", value: 10, color: "#991b1b" },
+          { name: "Fresh", value: 45, color: "hsl(var(--chart-1))" },
+          { name: "Near Expiry", value: 25, color: "hsl(var(--chart-2))" },
+          { name: "Expiring Soon", value: 20, color: "hsl(var(--chart-3))" },
+          { name: "Expired", value: 10, color: "hsl(var(--chart-4))" },
         ],
         salesPredictions: [
           { date: "Jan 1", predicted: 120, actual: 115, confidence: 0.92 },
@@ -122,10 +120,7 @@ export default function AnalyticsPage() {
           { name: "Yogurt", alerts: 9, sales: 178, accuracy: 89 },
         ]
       };
-
-      // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       setAnalyticsData(mockData);
     } catch (error) {
       toast.error("Failed to fetch analytics data");
@@ -134,17 +129,7 @@ export default function AnalyticsPage() {
     }
   };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(value);
-  };
-
-  const formatNumber = (value: number) => {
-    return new Intl.NumberFormat('en-US').format(value);
-  };
-
+  const formatNumber = (value: number) => new Intl.NumberFormat('en-US').format(value);
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 0.9) return "text-green-600";
     if (confidence >= 0.8) return "text-yellow-600";
@@ -173,9 +158,21 @@ export default function AnalyticsPage() {
     );
   }
 
+  const expiryChartConfig: ChartConfig = {
+    value: { label: "Products" },
+    Fresh: { label: "Fresh", color: "hsl(var(--chart-1))" },
+    "Near Expiry": { label: "Near Expiry", color: "hsl(var(--chart-2))" },
+    "Expiring Soon": { label: "Expiring Soon", color: "hsl(var(--chart-3))" },
+    Expired: { label: "Expired", color: "hsl(var(--chart-4))" },
+  };
+
+  const salesChartConfig: ChartConfig = {
+    predicted: { label: "Predicted", color: "hsl(var(--chart-1))" },
+    actual: { label: "Actual", color: "hsl(var(--chart-2))" },
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
@@ -185,9 +182,7 @@ export default function AnalyticsPage() {
         </div>
         <div className="flex gap-2">
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
+            <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="7d">Last 7 days</SelectItem>
               <SelectItem value="30d">Last 30 days</SelectItem>
@@ -202,7 +197,6 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Key Metrics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -216,7 +210,6 @@ export default function AnalyticsPage() {
             </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Alerts</CardTitle>
@@ -229,7 +222,6 @@ export default function AnalyticsPage() {
             </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Prediction Accuracy</CardTitle>
@@ -242,7 +234,6 @@ export default function AnalyticsPage() {
             </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Waste Reduction</CardTitle>
@@ -257,9 +248,7 @@ export default function AnalyticsPage() {
         </Card>
       </div>
 
-      {/* Charts Grid */}
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Expiry Distribution */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -271,29 +260,19 @@ export default function AnalyticsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ChartContainer config={expiryChartConfig} className="min-h-[300px] w-full">
               <RechartsPieChart>
-                <Pie
-                  data={analyticsData.expiryDistribution}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({ name, value }) => `${name}: ${value}%`}
-                >
-                  {analyticsData.expiryDistribution.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                <Tooltip content={<ChartTooltipContent hideLabel />} />
+                <Pie data={analyticsData.expiryDistribution} dataKey="value" nameKey="name" innerRadius={60}>
+                  {analyticsData.expiryDistribution.map((entry) => (
+                    <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip />
-                <Legend />
               </RechartsPieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
 
-        {/* Sales Predictions */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -305,33 +284,18 @@ export default function AnalyticsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={analyticsData.salesPredictions}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="predicted" 
-                  stroke="#3b82f6" 
-                  strokeWidth={2}
-                  name="Predicted"
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="actual" 
-                  stroke="#10b981" 
-                  strokeWidth={2}
-                  name="Actual"
-                />
+            <ChartContainer config={salesChartConfig} className="min-h-[300px] w-full">
+              <LineChart data={analyticsData.salesPredictions} margin={{ left: 12, right: 12 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
+                <Tooltip content={<ChartTooltipContent indicator="line" />} />
+                <Line dataKey="predicted" type="natural" stroke="var(--color-predicted)" strokeWidth={2} dot={false} />
+                <Line dataKey="actual" type="natural" stroke="var(--color-actual)" strokeWidth={2} dot={false} />
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
 
-        {/* Stock Trends */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -358,7 +322,6 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        {/* Alert Trends */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -377,45 +340,16 @@ export default function AnalyticsPage() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Area 
-                  type="monotone" 
-                  dataKey="nearExpiry" 
-                  stackId="1" 
-                  stroke="#f59e0b" 
-                  fill="#f59e0b" 
-                  name="Near Expiry"
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="expired" 
-                  stackId="1" 
-                  stroke="#ef4444" 
-                  fill="#ef4444" 
-                  name="Expired"
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="donationReady" 
-                  stackId="1" 
-                  stroke="#3b82f6" 
-                  fill="#3b82f6" 
-                  name="Donation Ready"
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="lowStock" 
-                  stackId="1" 
-                  stroke="#8b5cf6" 
-                  fill="#8b5cf6" 
-                  name="Low Stock"
-                />
+                <Area type="monotone" dataKey="nearExpiry" stackId="1" stroke="#f59e0b" fill="#f59e0b" name="Near Expiry" />
+                <Area type="monotone" dataKey="expired" stackId="1" stroke="#ef4444" fill="#ef4444" name="Expired" />
+                <Area type="monotone" dataKey="donationReady" stackId="1" stroke="#3b82f6" fill="#3b82f6" name="Donation Ready" />
+                <Area type="monotone" dataKey="lowStock" stackId="1" stroke="#8b5cf6" fill="#8b5cf6" name="Low Stock" />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
 
-      {/* Top Products Table */}
       <Card>
         <CardHeader>
           <CardTitle>Top Products by Performance</CardTitle>
@@ -445,12 +379,12 @@ export default function AnalyticsPage() {
                       {product.alerts}
                     </Badge>
                   </div>
-                  <div className="text-right">
+                  <_div className="text-right">
                     <div className="text-sm text-muted-foreground">Accuracy</div>
                     <div className={`font-medium ${getConfidenceColor(product.accuracy / 100)}`}>
                       {product.accuracy}%
                     </div>
-                  </div>
+                  </_div>
                 </div>
               </div>
             ))}

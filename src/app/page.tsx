@@ -108,7 +108,7 @@ export default function Dashboard() {
     { href: "/products", icon: Package, label: "Products" },
     { href: "/scan", icon: Camera, label: "Scan Product" },
     { href: "/alerts", icon: AlertTriangle, label: "Alerts" },
-    { href: "/analytics", icon: TrendingUp, label: "Analytics" },
+    { href: "/alerts/analytics", icon: TrendingUp, label: "Analytics" },
     { href: "/predictions", icon: BarChart3, label: "Predictions" },
     { href: "/mock", icon: Settings, label: "Mock Services" },
   ];
@@ -116,10 +116,6 @@ export default function Dashboard() {
   const SidebarContent = () => (
     <>
       <div className="flex items-center justify-between p-4 border-b">
-        <div className="flex items-center space-x-2">
-          <Package className="h-6 w-6 text-primary" />
-          <span className="font-bold text-xl">Expyra</span>
-        </div>
         <Button
           variant="ghost"
           size="icon"

@@ -6,9 +6,12 @@
 > Ready on http://0.0.0.0:3000
 > Socket.IO server running at ws://0.0.0.0:3000/api/socketio
  ○ Compiling / ...
- ✓ Compiled / in 7.6s (902 modules)
- GET / 200 in 9897ms
+ ✓ Compiled / in 11s (902 modules)
+ GET / 200 in 13236ms
  ○ Compiling /icon.svg ...
- ✓ Compiled /icon.svg in 1940ms (493 modules)
- GET /icon.svg?554170b75496ef12 200 in 2235ms
- GET /icon.svg?554170b75496ef12 200 in 41ms
+ ✓ Compiled /icon.svg in 1308ms (493 modules)
+ GET /icon.svg?554170b75496ef12 200 in 1797ms
+ GET /icon.svg?554170b75496ef12 200 in 29ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `npx tsx server.ts`[39m
