@@ -379,12 +379,12 @@ export default function AnalyticsPage() {
                       {product.alerts}
                     </Badge>
                   </div>
-                  <_div className="text-right">
+                  <div className="text-right">
                     <div className="text-sm text-muted-foreground">Accuracy</div>
                     <div className={`font-medium ${getConfidenceColor(product.accuracy / 100)}`}>
                       {product.accuracy}%
                     </div>
-                  </_div>
+                  </div>
                 </div>
               </div>
             ))}

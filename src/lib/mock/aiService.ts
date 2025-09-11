@@ -60,17 +60,17 @@ export class MockAIPredictionService {
 
     // Generate base sales pattern
     const baseSales = this.getBaseSalesForCategory(params.category);
-    
+
     for (let i = 0; i < days; i++) {
       const date = new Date();
       date.setDate(date.getDate() + i);
 
       // Calculate factors
-      const seasonalityFactor = params.factors?.seasonality ? 
+      const seasonalityFactor = params.factors?.seasonality ?
         this.getSeasonalityFactor(date) : 1.0;
-      const trendFactor = params.factors?.trends ? 
+      const trendFactor = params.factors?.trends ?
         this.getTrendFactor(i, days) : 1.0;
-      const externalFactor = params.factors?.externalFactors ? 
+      const externalFactor = params.factors?.externalFactors ?
         this.getExternalFactor(date) : 1.0;
 
       // Add randomness
@@ -110,11 +110,13 @@ export class MockAIPredictionService {
     // Generate summary
     const averageSales = Math.round(totalSales / predictions.length);
     const avgConfidence = predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length;
-    
+
+    const confidenceLevel: 'LOW' | 'MEDIUM' | 'HIGH' = avgConfidence > 0.8 ? 'HIGH' : avgConfidence > 0.65 ? 'MEDIUM' : 'LOW';
+
     const summary = {
       averagePredictedSales: averageSales,
       totalPredictedSales: totalSales,
-      confidenceLevel: avgConfidence > 0.8 ? 'HIGH' : avgConfidence > 0.65 ? 'MEDIUM' : 'LOW',
+      confidenceLevel,
       keyInsights: this.generateKeyInsights(predictions, params),
     };
 
@@ -161,15 +163,15 @@ export class MockAIPredictionService {
     const weights = [0.2, 0.3, 0.3, 0.2];
     const randomValue = Math.random();
     let cumulativeWeight = 0;
-    
+
     for (let i = 0; i < riskScenarios.length; i++) {
       cumulativeWeight += weights[i];
       if (randomValue <= cumulativeWeight) {
-        return riskScenarios[i];
+        return { productId, ...riskScenarios[i] };
       }
     }
 
-    return riskScenarios[0];
+    return { productId, ...riskScenarios[0] };
   }
 
   async optimizeInventory(productId: string): Promise<MockInventoryOptimization> {
@@ -228,13 +230,13 @@ export class MockAIPredictionService {
   private getSeasonalityFactor(date: Date): number {
     const month = date.getMonth();
     const dayOfWeek = date.getDay();
-    
+
     // Weekend factor
     const weekendFactor = (dayOfWeek === 0 || dayOfWeek === 6) ? 1.3 : 1.0;
-    
+
     // Seasonal factor (simplified)
     const seasonalFactor = 1 + 0.2 * Math.sin((month / 12) * 2 * Math.PI);
-    
+
     return weekendFactor * seasonalFactor;
   }
 
@@ -255,13 +257,13 @@ export class MockAIPredictionService {
     random: number
   ): number {
     let confidence = 0.7; // Base confidence
-    
+
     // Higher confidence for stable factors
     if (seasonality > 0.8 && seasonality < 1.2) confidence += 0.1;
     if (trend > 0.9 && trend < 1.1) confidence += 0.1;
     if (external > 0.9 && external < 1.1) confidence += 0.05;
     if (random > 0.8 && random < 1.2) confidence += 0.05;
-    
+
     return Math.min(0.99, Math.max(0.5, confidence));
   }
 
@@ -287,7 +289,7 @@ export class MockAIPredictionService {
   ): string[] {
     const avgSales = predictions.reduce((sum, p) => sum + p.predictedSales, 0) / predictions.length;
     const avgConfidence = predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length;
-    
+
     const insights = [
       `Average daily sales predicted: ${Math.round(avgSales)} units`,
       `Prediction confidence: ${(avgConfidence * 100).toFixed(1)}%`,
@@ -333,11 +335,11 @@ export class MockAIService {
   }) {
     const [salesPrediction, expiryAnalysis, inventoryOptimization] = await Promise.all([
       this.getSalesPrediction(params),
-      params.includeExpiry && params.productId ? 
-        this.getExpiryAnalysis(params.productId, 'mock_batch') : 
+      params.includeExpiry && params.productId ?
+        this.getExpiryAnalysis(params.productId, 'mock_batch') :
         Promise.resolve(null),
-      params.includeInventory && params.productId ? 
-        this.getInventoryOptimization(params.productId) : 
+      params.includeInventory && params.productId ?
+        this.getInventoryOptimization(params.productId) :
         Promise.resolve(null),
     ]);
 

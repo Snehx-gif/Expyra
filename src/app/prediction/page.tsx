@@ -79,79 +79,44 @@ export default function PredictionsPage() {
 
   const generatePredictions = async () => {
     setLoading(true);
-    try {
-      const requestData: any = {
-        category: selectedCategory === "all" ? undefined : selectedCategory,
-        timeRange,
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const mockPredictions: Prediction[] = Array.from({ length: 30 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() + i);
+      return {
+        date: date.toISOString(),
+        predictedSales: Math.floor(Math.random() * 200) + 100,
+        confidence: Math.random() * 0.3 + 0.65,
         factors: {
-          seasonality: true,
-          trends: true,
-          externalFactors: false,
+          seasonality: Math.random() * 0.4,
+          trend: Math.random() * 0.6 + 0.4,
+          external: 0,
         },
+        insights: i % 7 === 0 ? "High demand expected due to marketing campaign" : "Standard prediction",
       };
+    });
 
-      if (selectedProduct) {
-        requestData.productId = selectedProduct;
-      }
+    const totalSales = mockPredictions.reduce((sum, p) => sum + p.predictedSales, 0);
+    const avgConfidence = mockPredictions.reduce((sum, p) => sum + p.confidence, 0) / mockPredictions.length;
 
-      // Try AI predictions first
-      try {
-        const aiResponse = await fetch('/api/predictions/ai', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestData),
-        });
+    const mockSummary: PredictionSummary = {
+      averagePredictedSales: Math.round(totalSales / mockPredictions.length),
+      totalPredictedSales: totalSales,
+      confidenceLevel: avgConfidence > 0.85 ? 'High' : avgConfidence > 0.75 ? 'Medium' : 'Low',
+      keyInsights: [
+        'Sales forecast indicates a positive trend for the next 30 days.',
+        'Marketing campaigns have a noticeable impact on sales predictions.',
+        'Confidence levels are generally high, but monitor for external factors.',
+      ],
+    };
 
-        if (aiResponse.ok) {
-          const aiData = await aiResponse.json();
-          setPredictions(aiData.predictions);
-          setSummary(aiData.summary);
-          setAiSource(aiData.source);
-          toast.success("AI-powered predictions generated successfully");
-          return;
-        }
-      } catch (aiError) {
-        console.log('AI prediction failed, falling back to mock data');
-      }
-
-      // Fallback to regular predictions API
-      const response = await fetch('/api/predictions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
-      });
-
-      if (!response.ok) throw new Error("Failed to generate predictions");
-
-      const data = await response.json();
-      setPredictions(data.predictions);
-      setAiSource(data.source);
-      
-      // Generate summary from predictions
-      const totalSales = data.predictions.reduce((sum: number, p: Prediction) => sum + p.predictedSales, 0);
-      const avgConfidence = data.predictions.reduce((sum: number, p: Prediction) => sum + p.confidence, 0) / data.predictions.length;
-      
-      setSummary({
-        averagePredictedSales: Math.round(totalSales / data.predictions.length),
-        totalPredictedSales: totalSales,
-        confidenceLevel: avgConfidence > 0.85 ? 'High' : avgConfidence > 0.75 ? 'Medium' : 'Low',
-        keyInsights: [
-          'Predictions based on historical sales patterns',
-          'Seasonal trends have been factored in',
-          'Market trends show positive growth',
-        ],
-      });
-
-      toast.success("Predictions generated successfully");
-    } catch (error) {
-      toast.error("Failed to generate predictions");
-    } finally {
-      setLoading(false);
-    }
+    setPredictions(mockPredictions);
+    setSummary(mockSummary);
+    setAiSource("mock");
+    setLoading(false);
+    toast.success("Mock predictions generated successfully");
   };
 
   const formatCurrency = (value: number) => {

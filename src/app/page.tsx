@@ -109,7 +109,7 @@ export default function Dashboard() {
     { href: "/scan", icon: Camera, label: "Scan Product" },
     { href: "/alerts", icon: AlertTriangle, label: "Alerts" },
     { href: "/alerts/analytics", icon: TrendingUp, label: "Analytics" },
-    { href: "/predictions", icon: BarChart3, label: "Predictions" },
+    { href: "/prediction", icon: BarChart3, label: "Predictions" },
     { href: "/mock", icon: Settings, label: "Mock Services" },
   ];
 

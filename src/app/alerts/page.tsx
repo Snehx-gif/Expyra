@@ -135,28 +135,94 @@ export default function AlertsPage() {
 
   const fetchAlerts = async () => {
     setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: "10",
-        status: selectedStatus,
-      });
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-      if (selectedType && selectedType !== "ALL") {
-        params.append("type", selectedType);
+    const mockAlerts: AlertData[] = [
+      {
+        id: "1",
+        type: "NEAR_EXPIRY",
+        title: "Milk Batch #1234",
+        message: "Expires in 2 days - Consider discount",
+        status: "ACTIVE",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        product: {
+          id: "prod-1",
+          name: "Fresh Milk",
+          category: "Dairy",
+          sku: "FM-123",
+        },
+        batch: {
+          id: "batch-1",
+          batchId: "1234",
+          expiryDate: new Date(new Date().getTime() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+          currentQuantity: 50,
+        }
+      },
+      {
+        id: "2",
+        type: "DONATION_READY",
+        title: "Bread Batch #5678",
+        message: "Ready for donation to local food bank",
+        status: "ACTIVE",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        product: {
+          id: "prod-2",
+          name: "Whole Wheat Bread",
+          category: "Bakery",
+          sku: "WWB-567",
+        },
+        batch: {
+          id: "batch-2",
+          batchId: "5678",
+          expiryDate: new Date(new Date().getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+          currentQuantity: 20,
+        }
+      },
+      {
+        id: "3",
+        type: "EXPIRED",
+        title: "Yogurt Batch #9012",
+        message: "Expired - Remove from inventory",
+        status: "ACTIVE",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        product: {
+          id: "prod-3",
+          name: "Greek Yogurt",
+          category: "Dairy",
+          sku: "GY-901",
+        },
+        batch: {
+          id: "batch-3",
+          batchId: "9012",
+          expiryDate: new Date(new Date().getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+          currentQuantity: 10,
+        }
+      },
+      {
+        id: "4",
+        type: "LOW_STOCK",
+        title: "Chicken Breast",
+        message: "Stock is low, reorder soon",
+        status: "ACTIVE",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        product: {
+          id: "prod-4",
+          name: "Chicken Breast",
+          category: "Meat & Poultry",
+          sku: "CB-001",
+        },
       }
+    ];
 
-      const response = await fetch(`/api/alerts?${params}`);
-      if (!response.ok) throw new Error("Failed to fetch alerts");
-
-      const data = await response.json();
-      setAlerts(data.alerts);
-      setTotalPages(data.pagination.pages);
-    } catch (error) {
-      toast.error("Failed to fetch alerts");
-    } finally {
-      setLoading(false);
-    }
+    setAlerts(mockAlerts);
+    setTotalPages(1);
+    setLoading(false);
+    toast.success("Mock alerts loaded successfully");
   };
 
   const handleResolveAlert = async (alertId: string) => {

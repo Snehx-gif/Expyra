@@ -53,7 +53,7 @@ export class MockOCRService {
     ];
 
     const selectedText = mockTexts[Math.floor(Math.random() * mockTexts.length)];
-    
+
     // Generate mock blocks
     const lines = selectedText.text.split('\n');
     const blocks = lines.map((line, index) => ({
@@ -102,8 +102,8 @@ export class MockObjectDetectionService {
 
     // Return 1-3 random objects
     const numObjects = Math.floor(Math.random() * 3) + 1;
-    const selectedObjects = [];
-    
+    const selectedObjects: MockObjectDetection['objects'] = [];
+
     for (let i = 0; i < numObjects; i++) {
       const randomObject = mockObjects[Math.floor(Math.random() * mockObjects.length)];
       selectedObjects.push({
@@ -165,7 +165,7 @@ export class MockProductInfoService {
 
   private extractDate(text: string, keywords: string[]): string | undefined {
     const lines = text.split('\n');
-    
+
     for (const line of lines) {
       const lowerLine = line.toLowerCase();
       for (const keyword of keywords) {
@@ -189,7 +189,7 @@ export class MockProductInfoService {
 
   private extractBatchId(text: string): string | undefined {
     const lines = text.split('\n');
-    
+
     for (const line of lines) {
       const lowerLine = line.toLowerCase();
       if (lowerLine.includes('batch')) {
