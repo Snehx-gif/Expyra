@@ -1,39 +1,55 @@
-import { NextResponse } from 'next/server';
-import { mockProducts } from '@/lib/mock/seedData';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const limit = parseInt(searchParams.get('limit') || '10', 10);
-  const search = searchParams.get('search') || '';
-  const category = searchParams.get('category') || '';
+import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
 
-  let filteredProducts = mockProducts;
+const prisma = new PrismaClient();
 
-  if (search) {
-    filteredProducts = filteredProducts.filter((product) =>
-      product.name.toLowerCase().includes(search.toLowerCase())
+export async function GET() {
+  try {
+    const products = await prisma.product.findMany({
+      include: {
+        batches: true,
+      },
+    });
+    return NextResponse.json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return NextResponse.json(
+      { error: "Error fetching products" },
+      { status: 500 },
     );
   }
+}
 
-  if (category && category !== 'all') {
-    filteredProducts = filteredProducts.filter(
-      (product) => product.category.toLowerCase() === category.toLowerCase()
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { name, description, category, batchId, manufacturingDate, expiryDate, initialQuantity, image } = body;
+
+    const product = await prisma.product.create({
+      data: {
+        name,
+        description,
+        category,
+        image,
+        batches: {
+          create: {
+            batchId,
+            manufacturingDate: new Date(manufacturingDate),
+            expiryDate: new Date(expiryDate),
+            initialQuantity,
+            currentQuantity: initialQuantity,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json(product, { status: 201 });
+  } catch (error) {
+    console.error("Error creating product:", error);
+    return NextResponse.json(
+      { error: "Error creating product" },
+      { status: 500 },
     );
   }
-
-  const startIndex = (page - 1) * limit;
-  const endIndex = page * limit;
-  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(filteredProducts.length / limit);
-
-  return NextResponse.json({
-    products: paginatedProducts,
-    pagination: {
-      page,
-      limit,
-      total: filteredProducts.length,
-      pages: totalPages,
-    },
-  });
 }
