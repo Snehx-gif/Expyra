@@ -1,12 +1,11 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import CameraScanner from '@/components/camera/camera-scanner';
 import {
   Package,
   AlertTriangle,
@@ -15,102 +14,27 @@ import {
   Bell,
   Settings,
   BarChart3,
-  ShoppingCart,
-  Calendar,
-  Users,
   Search,
   Plus,
   Moon,
   Sun,
   Menu,
-  X
-} from "lucide-react";
-import { useTheme } from "next-themes";
+  X,
+} from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 export default function Dashboard() {
   const { theme, setTheme } = useTheme();
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // Mock data for demonstration
-  const stats = [
-    {
-      title: "Total Products",
-      value: "1,234",
-      change: "+12%",
-      icon: Package,
-      color: "text-blue-600",
-    },
-    {
-      title: "Expiry Alerts",
-      value: "23",
-      change: "+5%",
-      icon: AlertTriangle,
-      color: "text-red-600",
-    },
-    {
-      title: "Sales Prediction",
-      value: "89%",
-      change: "+3%",
-      icon: TrendingUp,
-      color: "text-green-600",
-    },
-    {
-      title: "Scanned Today",
-      value: "156",
-      change: "+18%",
-      icon: Camera,
-      color: "text-purple-600",
-    },
-  ];
-
-  const recentAlerts = [
-    {
-      id: 1,
-      type: "NEAR_EXPIRY",
-      title: "Milk Batch #1234",
-      message: "Expires in 2 days - Consider discount",
-      time: "2 hours ago",
-      severity: "warning",
-    },
-    {
-      id: 2,
-      type: "DONATION_READY",
-      title: "Bread Batch #5678",
-      message: "Ready for donation to local food bank",
-      time: "4 hours ago",
-      severity: "info",
-    },
-    {
-      id: 3,
-      type: "EXPIRED",
-      title: "Yogurt Batch #9012",
-      message: "Expired - Remove from inventory",
-      time: "6 hours ago",
-      severity: "error",
-    },
-  ];
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case "error":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "warning":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "info":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   const navigationItems = [
-    { href: "/products", icon: Package, label: "Products" },
-    { href: "/scan", icon: Camera, label: "Scan Product" },
-    { href: "/alerts", icon: AlertTriangle, label: "Alerts" },
-    { href: "/alerts/analytics", icon: TrendingUp, label: "Analytics" },
-    { href: "/prediction", icon: BarChart3, label: "Predictions" },
-    { href: "/mock", icon: Settings, label: "Mock Services" },
+    { href: '/products', icon: Package, label: 'Products' },
+    { href: '/scan', icon: Camera, label: 'Scan Product' },
+    { href: '/alerts', icon: AlertTriangle, label: 'Alerts' },
+    { href: '/alerts/analytics', icon: TrendingUp, label: 'Analytics' },
+    { href: '/prediction', icon: BarChart3, label: 'Predictions' },
   ];
 
   const SidebarContent = () => (
@@ -189,7 +113,7 @@ export default function Dashboard() {
               <Button variant="ghost" size="icon">
                 <Bell className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+              <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
                 <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               </Button>
@@ -223,31 +147,18 @@ export default function Dashboard() {
                   <Plus className="mr-2 h-4 w-4" />
                   Add Product
                 </Button>
-                <Button variant="outline" className="w-full sm:w-auto">
-                  <Camera className="mr-2 h-4 w-4" />
-                  Scan Product
-                </Button>
+                <Sheet open={scannerOpen} onOpenChange={setScannerOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" className="w-full sm:w-auto">
+                      <Camera className="mr-2 h-4 w-4" />
+                      Scan Product
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom">
+                    <CameraScanner />
+                  </SheetContent>
+                </Sheet>
               </div>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-              {stats.map((stat) => (
-                <Card key={stat.title}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      {stat.title}
-                    </CardTitle>
-                    <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{stat.value}</div>
-                    <p className="text-xs text-muted-foreground">
-                      <span className="text-green-600">{stat.change}</span> from last week
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
             </div>
 
             {/* Main Content Tabs */}
@@ -269,50 +180,9 @@ export default function Dashboard() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      {recentAlerts.map((alert) => (
-                        <Alert key={alert.id} className={getSeverityColor(alert.severity)}>
-                          <AlertTriangle className="h-4 w-4" />
-                          <AlertDescription>
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                              <div>
-                                <div className="font-medium">{alert.title}</div>
-                                <div className="text-sm">{alert.message}</div>
-                              </div>
-                              <div className="text-xs text-muted-foreground whitespace-nowrap">
-                                {alert.time}
-                              </div>
-                            </div>
-                          </AlertDescription>
-                        </Alert>
-                      ))}
-                    </CardContent>
-                  </Card>
-
-                  {/* Quick Actions */}
-                  <Card className="lg:col-span-3">
-                    <CardHeader>
-                      <CardTitle>Quick Actions</CardTitle>
-                      <CardDescription>
-                        Common tasks and shortcuts
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <Button className="w-full justify-start">
-                        <Camera className="mr-2 h-4 w-4" />
-                        Scan New Product
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        <Package className="mr-2 h-4 w-4" />
-                        Add Product Manually
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        <AlertTriangle className="mr-2 h-4 w-4" />
-                        View All Alerts
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        <TrendingUp className="mr-2 h-4 w-4" />
-                        Generate Report
-                      </Button>
+                       <div className="text-center text-muted-foreground">
+                        Alerts will be displayed here
+                      </div>
                     </CardContent>
                   </Card>
                 </div>
@@ -327,25 +197,9 @@ export default function Dashboard() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {recentAlerts.map((alert) => (
-                        <div key={alert.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg gap-4">
-                          <div className="flex items-start space-x-4">
-                            <AlertTriangle className="h-5 w-5 text-orange-500 mt-0.5" />
-                            <div>
-                              <h4 className="font-medium">{alert.title}</h4>
-                              <p className="text-sm text-muted-foreground">{alert.message}</p>
-                            </div>
-                          </div>
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
-                            <Badge variant={alert.severity === "error" ? "destructive" : "secondary"}>
-                              {alert.type.replace("_", " ")}
-                            </Badge>
-                            <span className="text-sm text-muted-foreground">{alert.time}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                     <div className="text-center text-muted-foreground">
+                        Alerts will be displayed here
+                      </div>
                   </CardContent>
                 </Card>
               </TabsContent>
